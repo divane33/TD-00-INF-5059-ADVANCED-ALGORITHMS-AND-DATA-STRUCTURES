@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TD 00 (INF 5059): ALGORITHMES ET STRUCTURES DE DONNÉES AVANCÉES</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 5px; padding: 10px; }
+        #output { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>TD 00 (INF 5059): ALGORITHMES ET STRUCTURES DE DONNÉES AVANCÉES</h1>
+    <button onclick="afficherExercice('rechercheBinaire')">Exercice 1: Recherche Binaire</button>
+    <button onclick="afficherExercice('parcoursGraphe')">Exercice 2: Parcours de Graphe</button>
+    <button onclick="afficherExercice('sacADos')">Exercice 3: Problème du Sac à Dos</button>
+    <button onclick="afficherExercice('fusionIntervalles')">Exercice 4: Fusion d'Intervalles</button>
+    <button onclick="afficherExercice('sommeMaxSousTableau')">Exercice 5: Somme Maximale de Sous-Tableau</button>
+
+    <div id="exercice"></div>
+    <div id="output"></div>
+
+    <script>
+        // Exercice 1: Recherche Binaire
+        function rechercheBinaire(tab, cible) {
+            let gauche = 0, droite = tab.length - 1;
+            while (gauche <= droite) {
+                let milieu = Math.floor((gauche + droite) / 2);
+                if (tab[milieu] === cible) return milieu;
+                if (tab[milieu] < cible) gauche = milieu + 1;
+                else droite = milieu - 1;
+            }
+            return -1;
+        }
+
+        // Exercice 2: Parcours de Graphe (BFS et DFS)
+        class Graphe {
+            constructor() {
+                this.listeAdjacente = new Map();
+            }
+
+            ajouterArete(v, w) {
+                if (!this.listeAdjacente.has(v)) this.listeAdjacente.set(v, []);
+                if (!this.listeAdjacente.has(w)) this.listeAdjacente.set(w, []);
+                this.listeAdjacente.get(v).push(w);
+                this.listeAdjacente.get(w).push(v);
+            }
+
+            bfs(depart) {
+                let visite = new Set();
+                let file = [depart];
+                visite.add(depart);
+
+                let resultat = '';
+                while (file.length > 0) {
+                    let noeud = file.shift();
+                    resultat += noeud + ' ';
+
+                    for (let voisin of this.listeAdjacente.get(noeud)) {
+                        if (!visite.has(voisin)) {
+                            visite.add(voisin);
+                            file.push(voisin);
+                        }
+                    }
+                }
+                return resultat;
+            }
+
+            dfs(depart, visite = new Set(), resultat = '') {
+                if (visite.has(depart)) return resultat;
+                resultat += depart + ' ';
+                visite.add(depart);
+
+                for (let voisin of this.listeAdjacente.get(depart)) {
+                    resultat = this.dfs(voisin, visite, resultat);
+                }
+                return resultat;
+            }
+        }
+
+        // Exercice 3: Programmation Dynamique (Problème du Sac à Dos 0/1)
+        function sacADos(objets, capacite) {
+            let dp = Array(objets.length + 1).fill().map(() => Array(capacite + 1).fill(0));
+
+            for (let i = 1; i <= objets.length; i++) {
+                for (let w = 0; w <= capacite; w++) {
+                    if (objets[i - 1].poids <= w) {
+                        dp[i][w] = Math.max(
+                            objets[i - 1].valeur + dp[i - 1][w - objets[i - 1].poids],
+                            dp[i - 1][w]
+                        );
+                    } else {
+                        dp[i][w] = dp[i - 1][w];
+                    }
+                }
+            }
+            return dp[objets.length][capacite];
+        }
+
+        // Exercice 4: Fusion d'Intervalles
+        function fusionIntervalles(intervalles) {
+            if (intervalles.length === 0) return [];
+
+            intervalles.sort((a, b) => a[0] - b[0]);
+            let fusionnes = [intervalles[0]];
+
+            for (let i = 1; i < intervalles.length; i++) {
+                let dernier = fusionnes[fusionnes.length - 1];
+                if (intervalles[i][0] <= dernier[1]) {
+                    dernier[1] = Math.max(dernier[1], intervalles[i][1]);
+                } else {
+                    fusionnes.push(intervalles[i]);
+                }
+            }
+            return fusionnes;
+        }
+
+        // Exercice 5: Somme Maximale de Sous-Tableau (Algorithme de Kadane)
+        function sommeMaxSousTableau(tab) {
+            let maxAuTotal = tab[0], maxIci = tab[0];
+
+            for (let i = 1; i < tab.length; i++) {
+                maxIci = Math.max(tab[i], maxIci + tab[i]);
+                maxAuTotal = Math.max(maxAuTotal, maxIci);
+            }
+            return maxAuTotal;
+        }
+
+        function afficherExercice(exercice) {
+            const divExercice = document.getElementById('exercice');
+            divExercice.innerHTML = '';
+
+            if (exercice === 'rechercheBinaire') {
+                divExercice.innerHTML = `
+                    <h2>Recherche Binaire</h2>
+                    <h3>
+                    	Entrez un tableau trié (par exemple, "1,2,3,4") et la valeur cible (valeur à rechercher) (par exemple 3).
+                    </h3>
+                    <input type="text" id="tableau" placeholder="Entrez un tableau trié (ex: 1,2,3,4)">
+                    <input type="number" id="cible" placeholder="Valeur cible (valeur à rechercher) ">
+                    <button onclick="executerRechercheBinaire()">Exécuter</button>
+                `;
+            } else if (exercice === 'parcoursGraphe') {
+                divExercice.innerHTML = `
+                    <h2>Parcours de Graphe</h2>
+                    <h3>
+                    	Entrez les arêtes du graphe au format "A-B, B-C, C-D" et le nœud de départ (par exemple "A").
+                    </h3>
+                    <textarea id="aretesGraphe" placeholder="Entrez les arêtes (ex: A-B, B-C)"></textarea>
+                    <input type="text" id="noeudDepart" placeholder="Noeud de départ">
+                    <button onclick="executerBFS()">BFS</button>
+                    <button onclick="executerDFS()">DFS</button>
+                `;
+            } else if (exercice === 'sacADos') {
+                divExercice.innerHTML = `
+                    <h2>Problème du Sac à Dos</h2>
+                    <h3>
+                    	Entrez les éléments sous le format "valeur,poids" (par exemple, "60,10;100,20") et spécifiez la capacité du sac à dos.
+                    </h3>
+                    <textarea id="objets" placeholder="Entrez les objets (valeur,poids ex: 60,10;100,20)"></textarea>
+                    <input type="number" id="capacite" placeholder="Capacité du sac">
+                    <button onclick="executerSacADos()">Exécuter</button>
+                `;
+            } else if (exercice === 'fusionIntervalles') {
+                divExercice.innerHTML = `
+                    <h2>Fusion d'Intervalles</h2>
+                    <h3>
+                    	Entrez les intervalles sous le format "début-fin" (par exemple, "1-3,2-4,5-7").
+                    </h3>
+                    <input type="text" id="intervalles" placeholder="Entrez les intervalles (ex: 1-3,2-4,5-7)">
+                    <button onclick="executerFusionIntervalles()">Exécuter</button>
+                `;
+            } else if (exercice === 'sommeMaxSousTableau') {
+                divExercice.innerHTML = `
+                    <h2>Somme Maximale de Sous-Tableau</h2>
+                    <h3>Entrez le tableau d'entiers (par exemple, "-2,1,-3,4").</h3>
+                    <input type="text" id="sousTableau" placeholder="Entrez le tableau (ex: -2,1,-3,4)">
+                    <button onclick="executerSommeMaxSousTableau()">Exécuter</button>
+                `;
+            }
+        }
+
+        function executerRechercheBinaire() {
+            const tableau = document.getElementById('tableau').value.split(',').map(Number);
+            const cible = parseInt(document.getElementById('cible').value);
+            const resultat = rechercheBinaire(tableau, cible);
+            document.getElementById('output').innerText = `Résultat: ${resultat}`;
+        }
+
+        function executerBFS() {
+            const aretes = document.getElementById('aretesGraphe').value.split(',');
+            const depart = document.getElementById('noeudDepart').value;
+            const graphe = new Graphe();
+            aretes.forEach(arete => {
+                const [v, w] = arete.trim().split('-');
+                graphe.ajouterArete(v, w);
+            });
+            const resultat = graphe.bfs(depart);
+            document.getElementById('output').innerText = `Résultat BFS: ${resultat}`;
+        }
+
+        function executerDFS() {
+            const aretes = document.getElementById('aretesGraphe').value.split(',');
+            const depart = document.getElementById('noeudDepart').value;
+            const graphe = new Graphe();
+            aretes.forEach(arete => {
+                const [v, w] = arete.trim().split('-');
+                graphe.ajouterArete(v, w);
+            });
+            const resultat = graphe.dfs(depart);
+            document.getElementById('output').innerText = `Résultat DFS: ${resultat}`;
+        }
+
+        function executerSacADos() {
+            const objets = document.getElementById('objets').value.split(';').map(objet => {
+                const [valeur, poids] = objet.split(',').map(Number);
+                return { valeur, poids };
+            });
+            const capacite = parseInt(document.getElementById('capacite').value);
+            const resultat = sacADos(objets, capacite);
+            document.getElementById('output').innerText = `Valeur Max: ${resultat}`;
+        }
+
+        function executerFusionIntervalles() {
+            const intervalles = document.getElementById('intervalles').value.split(',').map(intervalle => {
+                return intervalle.split('-').map(Number);
+            });
+            const resultat = fusionIntervalles(intervalles);
+            document.getElementById('output').innerText = `Intervalles Fusionnés: ${JSON.stringify(resultat)}`;
+        }
+
+        function executerSommeMaxSousTableau() {
+            const tab = document.getElementById('sousTableau').value.split(',').map(Number);
+            const resultat = sommeMaxSousTableau(tab);
+            document.getElementById('output').innerText = `Somme Max: ${resultat}`;
+        }
+    </script>
+</body>
+</html>
+
