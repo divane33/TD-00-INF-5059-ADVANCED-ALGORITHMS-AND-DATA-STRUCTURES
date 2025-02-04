@@ -1,5 +1,8 @@
 # RAPPORT DU TD 00 (INF 5059): ADVANCED ALGORITHMS AND DATA STRUCTURES
 
+# NOMS: TEGOMO DYVANE DEGAR
+# MATRICULE: 20V2299
+
 ## Description
 
 Il s'agit d'une application web simple qui permet aux utilisateurs d'exécuter directement différents exercices d'algorithmes dans leur navigateur. Les algorithmes suivants sont implémentés :
